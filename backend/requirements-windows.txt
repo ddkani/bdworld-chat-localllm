@@ -1,0 +1,15 @@
+# Base requirements
+-r requirements-base.txt
+
+# Windows specific
+llama-cpp-python==0.2.90
+
+# Redis alternative for Windows
+channels-redis==4.1.0
+redis==5.0.1
+
+# Windows notes:
+# 1. Install Visual Studio Build Tools for C++ compilation
+# 2. Use WSL2 for Redis or install Redis for Windows from:
+#    https://github.com/microsoftarchive/redis/releases
+# 3. Or use Memurai as Redis alternative: https://www.memurai.com/

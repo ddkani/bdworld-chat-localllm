@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Redis service for all platforms
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - llm-network
+
+  # Optional: Django development server
+  # Uncomment to run Django in Docker
+  # web:
+  #   build: .
+  #   command: python manage.py runserver 0.0.0.0:8000
+  #   volumes:
+  #     - .:/app
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379/0
+  #   networks:
+  #     - llm-network
+
+volumes:
+  redis_data:
+
+networks:
+  llm-network:
+    driver: bridge

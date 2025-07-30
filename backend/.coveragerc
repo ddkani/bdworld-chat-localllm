@@ -1,0 +1,29 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests/*
+    */test_*.py
+    */venv/*
+    */virtualenv/*
+    */site-packages/*
+    setup.py
+    manage.py
+    */settings/*
+    */asgi.py
+    */wsgi.py
+    conftest.py
+    test_settings.py
+
+[report]
+precision = 2
+show_missing = True
+skip_covered = False
+sort = Cover
+
+[html]
+directory = htmlcov
+title = Local LLM Chat Coverage Report
+
+[xml]
+output = coverage.xml

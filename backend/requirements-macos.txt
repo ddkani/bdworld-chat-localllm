@@ -1,0 +1,12 @@
+# Base requirements
+-r requirements-base.txt
+
+# macOS specific
+llama-cpp-python==0.2.90
+
+# Redis (install via Homebrew: brew install redis)
+channels-redis==4.1.0
+redis==5.0.1
+
+# Optional: For better performance on Apple Silicon
+# CMAKE_ARGS="-DLLAMA_METAL=on" pip install llama-cpp-python --force-reinstall --no-cache-dir

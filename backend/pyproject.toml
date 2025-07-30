@@ -1,0 +1,242 @@
+[project]
+name = "llm-chat-backend"
+version = "1.0.0"
+description = "Local LLM Chat Backend with Django"
+readme = "README.md"
+requires-python = ">=3.9,<4.0"
+license = { text = "MIT" }
+authors = [
+    { name = "LLM Chat Team", email = "team@llmchat.local" }
+]
+keywords = ["django", "llm", "chat", "websocket", "ai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Core Django
+    "Django>=4.2.7,<5.0",
+    "channels>=4.0.0",
+    "djangorestframework>=3.14.0",
+    "django-cors-headers>=4.3.0",
+    "python-dotenv>=1.0.0",
+    "daphne>=4.0.0",
+    
+    # Database
+    # SQLite is included with Python
+    
+    # Channels support
+    "channels-redis>=4.1.0",
+    "redis>=5.0.1",
+    
+    # LLM support
+    "llama-cpp-python>=0.2.90",
+    
+    # Data processing
+    "numpy>=1.24.4",
+    "scikit-learn>=1.3.2",
+    "pandas>=2.0.3",
+    
+    # Utilities
+    "tabulate>=0.9.0",
+    "tqdm>=4.66.1",
+    "requests>=2.31.0",
+    
+    # Async support
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.4.3",
+    "pytest-django>=4.7.0",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-timeout>=2.2.0",
+    
+    # Coverage
+    "coverage[toml]>=7.3.2",
+    
+    # Mocking and testing utilities
+    "factory-boy>=3.3.0",
+    "faker>=19.12.0",
+    
+    # Code quality
+    "black>=23.12.1",
+    "flake8>=7.0.0",
+    "isort>=5.13.2",
+    "mypy>=1.8.0",
+    "django-stubs>=4.2.7",
+    
+    # Documentation
+    "sphinx>=7.2.6",
+    "sphinx-rtd-theme>=2.0.0",
+]
+
+macos = [
+    # macOS specific for Metal acceleration
+    # Installed with CMAKE_ARGS="-DLLAMA_METAL=on"
+]
+
+windows = [
+    # Windows specific
+    # May need Visual Studio Build Tools
+]
+
+production = [
+    "gunicorn>=21.2.0",
+    "whitenoise>=6.6.0",
+    "psycopg2-binary>=2.9.9",  # PostgreSQL
+    "sentry-sdk>=1.39.1",  # Error tracking
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["chat", "llm", "chat_project"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js", "*.json", "*.png", "*.jpg", "*.svg"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_settings"
+python_files = ["test_*.py", "*_test.py", "*_tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["chat/tests", "llm/tests"]
+addopts = """
+    --verbose
+    --strict-markers
+    --tb=short
+    --cov=chat
+    --cov=llm
+    --cov-report=term-missing
+    --cov-report=html
+    --maxfail=1
+"""
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+    "websocket: WebSocket tests",
+    "llm: LLM-related tests",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "*/venv/*",
+    "*/virtualenv/*",
+    "*/.venv/*",
+    "setup.py",
+    "manage.py",
+    "*/settings/*",
+    "*/asgi.py",
+    "*/wsgi.py",
+    "conftest.py",
+    "test_settings.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "Local LLM Chat Coverage Report"
+
+[tool.black]
+line-length = 120
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | \.venv
+  | _build
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 120
+skip = ["venv", ".venv", "migrations", ".tox"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = [
+    "migrations/",
+    "venv/",
+    ".venv/",
+    "tests/",
+]
+
+[[tool.mypy.overrides]]
+module = "llama_cpp.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "venv",
+    "_build",
+    "build",
+    "dist",
+    "migrations",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"settings.py" = ["E402"]

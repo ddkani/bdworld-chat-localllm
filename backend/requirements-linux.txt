@@ -1,0 +1,13 @@
+# Base requirements
+-r requirements-base.txt
+
+# Linux specific
+llama-cpp-python==0.2.90
+
+# Redis
+channels-redis==4.1.0
+redis==5.0.1
+
+# System dependencies (install via apt):
+# sudo apt-get update
+# sudo apt-get install -y python3-dev build-essential redis-server
