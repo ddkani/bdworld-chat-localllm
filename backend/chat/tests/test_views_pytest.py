@@ -134,7 +134,7 @@ class TestChatSessionAPI:
         if title:
             assert response.data['title'] == title
         else:
-            assert response.data['title'] == 'New Chat'
+            assert response.data['title'] == '새 대화'
             
     def test_get_session_detail(self, authenticated_api_client, chat_session):
         """Test getting session details"""

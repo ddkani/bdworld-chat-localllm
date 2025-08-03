@@ -1,192 +1,134 @@
-# Local LLM Chat Project
+# LLM Chat & Management System
 
-웹 기반의 로컬 LLM을 이용한 채팅 애플리케이션입니다. Mistral 7B 모델을 사용하여 8GB RAM 환경에서도 실행 가능하도록 최적화되었습니다.
-
-## 주요 기능
-
-- 🔐 **간단한 사용자 인증**: 비밀번호 없이 사용자명만으로 로그인
-- 💬 **실시간 채팅**: WebSocket을 통한 실시간 스트리밍 응답
-- 📁 **세션 관리**: 여러 채팅 세션 생성, 저장, 삭제 가능
-- 🧠 **RAG (Retrieval-Augmented Generation)**: 문서 기반 컨텍스트 검색
-- 🎯 **Prompt Tuning**: 커스텀 프롬프트 템플릿 관리
-- ⚡ **최적화된 성능**: 제한된 하드웨어에서도 초당 5-10 토큰 생성
-
-## 기술 스택
-
-### Backend
-- **Django 4.2**: 웹 프레임워크
-- **Django Channels**: WebSocket 지원
-- **llama-cpp-python**: LLM 추론 엔진
-- **SQLite + SQLite-VSS**: 데이터베이스 및 벡터 검색
-- **Redis**: Channel Layer를 위한 메시지 브로커
-
-### Frontend
-- **React 18**: UI 프레임워크
-- **TypeScript**: 타입 안정성
-- **Material-UI**: UI 컴포넌트
-- **WebSocket**: 실시간 통신
-
-### LLM
-- **Mistral 7B Instruct v0.2**: 기본 언어 모델
-- **4-bit Quantization (Q4_K_M)**: 메모리 효율적인 모델
+로컬 LLM을 활용한 채팅 시스템과 관리 도구입니다.
 
 ## 프로젝트 구조
 
 ```
 .
-├── backend/
-│   ├── chat_project/       # Django 프로젝트 설정
-│   ├── chat/              # 채팅 앱 (모델, 뷰, WebSocket)
-│   ├── llm/               # LLM 서비스 및 관리
-│   ├── requirements.txt   # Python 의존성
-│   └── .env              # 환경 변수
-├── frontend/
-│   ├── src/
-│   │   ├── components/   # React 컴포넌트
-│   │   ├── contexts/     # React Context (인증)
-│   │   ├── pages/        # 페이지 컴포넌트
-│   │   ├── services/     # API 및 WebSocket 서비스
-│   │   └── types/        # TypeScript 타입 정의
-│   └── package.json      # Node.js 의존성
-├── setup.md              # 설치 가이드
-├── readme.md            # 프로젝트 문서
-└── performance.md       # 성능 분석
+├── backend/               # Django 백엔드 서버
+├── frontend-chat/         # 채팅 UI (React)
+└── frontend-admin/        # 관리자 UI (React)
 ```
 
-## API 설계
+## 주요 기능
 
-### REST API Endpoints
+### 채팅 시스템 (frontend-chat)
+- 사용자 인증 (로그인/로그아웃)
+- 채팅 세션 관리
+- 실시간 스트리밍 응답
+- RAG (Retrieval-Augmented Generation) 지원
 
-#### 인증
-- `POST /api/auth/login/` - 사용자 로그인
+### 관리자 시스템 (frontend-admin)
+- **RAG 문서 관리**: 문서 추가, 삭제, 유사도 검색
+- **프롬프트 템플릿**: 시스템 프롬프트 및 Few-shot 예제 관리
+- **모델 관리**: LLM 모델 다운로드 및 관리
+- **Fine-tuning**: 커스텀 데이터셋으로 모델 학습
+
+## 설치 및 실행
+
+### 1. 백엔드 설정
+
+```bash
+cd backend
+./setup_macos.sh  # macOS
+# 또는
+./setup_windows.bat  # Windows
+# 또는
+./setup_linux.sh  # Linux
+
+# 데이터베이스 마이그레이션
+uv run python manage.py makemigrations
+uv run python manage.py migrate
+
+# 서버 실행
+./run_macos.sh  # macOS
+# 또는
+./run_windows.bat  # Windows
+# 또는
+./run_linux.sh  # Linux
+```
+
+### 2. 채팅 UI 실행
+
+```bash
+cd frontend-chat
+npm install
+npm start  # http://localhost:3001
+```
+
+### 3. 관리자 UI 실행
+
+```bash
+cd frontend-admin
+npm install
+npm start  # http://localhost:3002
+```
+
+## API 엔드포인트
+
+### 인증 API
+- `POST /api/auth/login/` - 로그인
 - `POST /api/auth/logout/` - 로그아웃
 - `GET /api/auth/user/` - 현재 사용자 정보
 
-#### 채팅 세션
-- `GET /api/sessions/` - 세션 목록 조회
+### 채팅 API
+- `GET /api/sessions/` - 세션 목록
 - `POST /api/sessions/` - 새 세션 생성
-- `GET /api/sessions/{id}/` - 세션 상세 정보
-- `PUT /api/sessions/{id}/` - 세션 업데이트
+- `PATCH /api/sessions/{id}/` - 세션 수정
 - `DELETE /api/sessions/{id}/` - 세션 삭제
-- `GET /api/sessions/{id}/messages/` - 세션 메시지 조회
 
-#### RAG 문서
+### WebSocket
+- `ws://localhost:8000/ws/chat/{session_id}/` - 채팅 WebSocket
+
+### RAG API
 - `GET /api/rag/documents/` - 문서 목록
 - `POST /api/rag/documents/` - 문서 추가
-- `GET /api/rag/documents/{id}/` - 문서 상세
-- `PUT /api/rag/documents/{id}/` - 문서 수정
 - `DELETE /api/rag/documents/{id}/` - 문서 삭제
+- `POST /api/rag/search/` - 유사도 검색
 
-#### 프롬프트 템플릿
-- `GET /api/prompts/templates/` - 템플릿 목록
-- `POST /api/prompts/templates/` - 템플릿 생성
-- `GET /api/prompts/templates/{id}/` - 템플릿 상세
-- `PUT /api/prompts/templates/{id}/` - 템플릿 수정
-- `DELETE /api/prompts/templates/{id}/` - 템플릿 삭제
+### 프롬프트 템플릿 API
+- `GET /api/prompts/` - 템플릿 목록
+- `POST /api/prompts/` - 템플릿 생성
+- `PATCH /api/prompts/{id}/` - 템플릿 수정
+- `DELETE /api/prompts/{id}/` - 템플릿 삭제
+- `POST /api/prompts/{id}/activate/` - 템플릿 활성화
 
-### WebSocket Protocol
+### 모델 관리 API
+- `GET /api/models/info/` - 모델 정보
+- `POST /api/models/download/` - 모델 다운로드 시작
+- `GET /api/models/download/{task_id}/` - 다운로드 진행 상황
 
-연결: `ws://localhost:8000/ws/chat/{session_id}/`
+### Fine-tuning API
+- `GET /api/finetuning/jobs/` - 학습 작업 목록
+- `POST /api/finetuning/jobs/` - 새 학습 작업
+- `GET /api/finetuning/jobs/{id}/` - 작업 상세 정보
+- `POST /api/finetuning/jobs/{id}/cancel/` - 작업 취소
+- `POST /api/finetuning/datasets/` - 데이터셋 업로드
 
-#### 클라이언트 → 서버 메시지
-```json
-{
-  "type": "message",
-  "content": "사용자 메시지",
-  "use_rag": true
-}
+## 환경 변수
+
+### Backend (.env)
+```
+MODEL_PATH=models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+MODEL_CONTEXT_LENGTH=4096
+MODEL_MAX_TOKENS=512
+MODEL_TEMPERATURE=0.7
+MODEL_THREADS=4
 ```
 
-#### 서버 → 클라이언트 메시지
-
-**세션 정보:**
-```json
-{
-  "type": "session_info",
-  "session": {
-    "id": "1",
-    "title": "New Chat",
-    "settings": {...}
-  }
-}
+### Frontend 환경 변수
+```
+REACT_APP_API_BASE_URL=http://localhost:8000/api
+REACT_APP_WS_BASE_URL=ws://localhost:8000/ws
 ```
 
-**스트리밍 시작:**
-```json
-{
-  "type": "stream_start",
-  "message": {
-    "role": "assistant"
-  }
-}
-```
+## 기술 스택
 
-**스트리밍 토큰:**
-```json
-{
-  "type": "stream_token",
-  "token": "생성된 "
-}
-```
-
-**스트리밍 종료:**
-```json
-{
-  "type": "stream_end",
-  "message": {
-    "id": 1,
-    "role": "assistant",
-    "content": "전체 응답 내용",
-    "created_at": "2024-01-01T00:00:00Z",
-    "rag_context": "사용된 컨텍스트"
-  }
-}
-```
-
-## 데이터베이스 스키마
-
-### User
-- 커스텀 사용자 모델 (비밀번호 없음)
-- 사용자명으로만 인증
-
-### ChatSession
-- 사용자별 채팅 세션 관리
-- 세션별 설정 저장 (temperature, max_tokens 등)
-
-### Message
-- 세션 내 개별 메시지
-- role: user, assistant, system
-- RAG 컨텍스트 추적
-
-### RAGDocument
-- RAG용 문서 저장
-- 벡터 임베딩 및 유사도 검색
-
-### PromptTemplate
-- 재사용 가능한 프롬프트 템플릿
-- Few-shot 예제 포함 가능
-
-## 주요 특징
-
-### 1. 메모리 효율적인 LLM 실행
-- 4-bit quantization으로 모델 크기 축소
-- CPU 전용 실행으로 GPU 불필요
-- 스트리밍 응답으로 메모리 사용 최적화
-
-### 2. 실시간 스트리밍
-- WebSocket을 통한 토큰별 스트리밍
-- 사용자 경험 향상
-- 응답 대기 시간 단축
-
-### 3. RAG 시스템
-- 문서 기반 컨텍스트 검색
-- 간단한 벡터 유사도 검색
-- JSON, CSV, TXT 파일 지원
-
-### 4. Prompt Tuning
-- 시스템 프롬프트 커스터마이징
-- Few-shot 학습 예제 관리
-- 템플릿 import/export 기능
+- **Backend**: Django, Django REST Framework, Django Channels, llama-cpp-python
+- **Frontend**: React, TypeScript, Material-UI
+- **Database**: SQLite
+- **LLM**: Mistral 7B Instruct v0.2 (Quantized)
 
 ## 보안 고려사항
 
@@ -205,4 +147,4 @@
 
 ## 라이선스
 
-이 프로젝트는 교육 및 연구 목적으로 제공됩니다. Mistral 7B 모델 사용 시 해당 라이선스를 확인하세요.
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.

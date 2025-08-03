@@ -170,7 +170,8 @@ class TestWebSocketMessaging:
         # Should receive error
         response = await websocket_communicator.receive_json_from()
         assert response['type'] == 'error'
-        assert 'empty' in response['error'].lower()
+        # Check for Korean error message about empty content
+        assert '비어있을' in response['error'] or '메시지' in response['error']
 
 
 @pytest.mark.django_db(transaction=True)
@@ -290,7 +291,8 @@ class TestWebSocketTitleUpdate:
         # Should receive error
         response = await websocket_communicator.receive_json_from()
         assert response['type'] == 'error'
-        assert 'empty' in response['error'].lower()
+        # Check for Korean error message about empty content
+        assert '비어있을' in response['error'] or '메시지' in response['error']
 
 
 @pytest.mark.django_db(transaction=True)
@@ -369,7 +371,8 @@ class TestWebSocketErrors:
         # Should receive error
         response = await websocket_communicator.receive_json_from()
         assert response['type'] == 'error'
-        assert 'Unknown message type' in response['error']
+        # Check for Korean error message about unknown message type
+        assert '알 수 없는' in response['error'] or 'invalid_type' in response['error']
         
     async def test_malformed_json(self, websocket_communicator):
         """Test handling malformed JSON"""
@@ -386,4 +389,5 @@ class TestWebSocketErrors:
         # Should receive error
         response = await websocket_communicator.receive_json_from()
         assert response['type'] == 'error'
-        assert 'Invalid JSON' in response['error']
+        # Check for Korean error message about invalid JSON
+        assert 'JSON' in response['error'] or '형식' in response['error']
