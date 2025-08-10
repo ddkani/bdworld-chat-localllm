@@ -40,7 +40,9 @@ dependencies = [
     "redis>=5.0.1",
     
     # LLM support
-    "llama-cpp-python>=0.2.90",
+    # Use pre-built wheels for Windows to avoid compilation issues
+    "llama-cpp-python>=0.2.90; sys_platform != 'win32'",
+    "llama-cpp-python @ https://github.com/abetlen/llama-cpp-python/releases/download/v0.3.2/llama_cpp_python-0.3.2-cp311-cp311-win_amd64.whl; sys_platform == 'win32' and python_version == '3.11'",
     
     # Data processing
     "numpy>=1.24.4",
